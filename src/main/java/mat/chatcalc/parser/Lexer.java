@@ -58,6 +58,9 @@ public class Lexer implements Iterator<Token> {
 				case '^':
 					type = Token.Type.EXP;
 					break;
+				case '%':
+					type = Token.Type.MOD;
+					break;
 			}
 
 			String value = "" + c;
