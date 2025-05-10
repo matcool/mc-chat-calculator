@@ -1,6 +1,5 @@
 package mat.chatcalc;
 
-import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.client.event.ClientChatEvent;
@@ -9,19 +8,14 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.slf4j.Logger;
 
-@Mod(ExampleMod.MODID)
-public class ExampleMod {
+@Mod(MainMod.MODID)
+public class MainMod {
 	public static final String MODID = "chatcalculator";
-	private static final Logger LOGGER = LogUtils.getLogger();
 
-	public ExampleMod(FMLJavaModLoadingContext context) {
-		// Register ourselves for server and other game events we are interested in
+	public MainMod(FMLJavaModLoadingContext context) {
 		MinecraftForge.EVENT_BUS.register(this);
-
-		// Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
-		context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+		context.registerConfig(ModConfig.Type.COMMON, Config.SPEC, "chatcalculator.toml");
 	}
 
 	@SubscribeEvent
@@ -33,7 +27,8 @@ public class ExampleMod {
 			}
 			var input = event.getMessage().substring(1).trim();
 			player.sendSystemMessage(Component.literal("= " + input));
-			player.sendSystemMessage(Component.literal("§7§oumm idk"));
+			// var output = mat.chatcalc.parser.Parser.parse(input);
+			// player.sendSystemMessage(Component.literal("§7§o" + output));
 			event.setCanceled(true);
 		}
 	}
