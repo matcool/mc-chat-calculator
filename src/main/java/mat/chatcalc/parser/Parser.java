@@ -36,7 +36,11 @@ public class Parser {
 	protected double parseExprPrefix(Token token) throws ParseException {
 		switch (token.getType()) {
 			case NUMBER:
-				return Double.parseDouble(token.getValue());
+				try {
+					return Double.parseDouble(token.getValue());
+				} catch (NumberFormatException e) {
+					throw new ParseException("Invalid number: " + token.getValue(), token.getOffset());
+				}
 			case NAME: {
 				if (lexer.peek().getType() == Token.Type.LPAREN) {
 					// function call!
