@@ -6,17 +6,17 @@ import net.minecraft.network.chat.Component;
 import net.minecraftforge.client.event.ClientChatEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod(MainMod.MODID)
 public class MainMod {
 	public static final String MODID = "chatcalculator";
 
-	public MainMod(FMLJavaModLoadingContext context) {
+	public MainMod() {
 		MinecraftForge.EVENT_BUS.register(this);
-		context.registerConfig(ModConfig.Type.COMMON, Config.SPEC, "chatcalculator.toml");
+		ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC, "chatcalculator.toml");
 	}
 
 	private static Calculator calc = new Calculator();
