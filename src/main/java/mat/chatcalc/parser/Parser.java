@@ -9,41 +9,54 @@ public class Parser {
 		this.variables = variables;
 	}
 
-	public static double parse(String input, VariableProvider variables) {
+	public static double parse(String input, VariableProvider variables) throws ParseException {
 		Parser parser = new Parser(new Lexer(input), variables);
-		return parser.evalExpression();
+
+		double value = parser.parseExpr();
+		var lastToken = parser.lexer.next();
+		if (lastToken.getType() != Token.Type.EOF) {
+			throw new ParseException("Unexpected token " + lastToken.getType(), lastToken.getOffset());
+		}
+		return value;
 	}
 
-	protected double evalExpression() {
-		return this.evalExpression(0);
+	protected double parseExpr() throws ParseException {
+		return this.parseExpr(0);
+
 	}
 
-	protected double evalExpression(int precedence) {
-		var left = this.evalExpressionPrefix(lexer.next());
+	protected double parseExpr(int precedence) throws ParseException {
+		var left = this.parseExprPrefix(lexer.next());
 		var result = left;
 		while (precedence < this.getNextInfixPrec()) {
-			result = this.evalExpressionInfix(lexer.next(), result);
+			result = this.parseExprInfix(lexer.next(), result);
 		}
 		return result;
 	}
 
-	protected double evalExpressionPrefix(Token token) {
+	protected double parseExprPrefix(Token token) throws ParseException {
 		switch (token.getType()) {
 			case NUMBER:
 				return Double.parseDouble(token.getValue());
-			case NAME:
-				// TODO: check null
-				return variables.valueForVariable(token.getValue());
-			case LPAREN: {
-				double value = this.evalExpression();
-				// TODO: expect RPAREN afterwards
-				lexer.next();
+			case NAME: {
+				var value = variables.valueForVariable(token.getValue());
+				if (value == null) {
+					throw new ParseException("Unknown variable " + token.getValue(), token.getOffset());
+				}
 				return value;
 			}
-			case MINUS:
-				return -this.evalExpression(Precedence.PREFIX);
+			case LPAREN: {
+				double value = this.parseExpr();
+				var next = lexer.next();
+				if (next.getType() != Token.Type.RPAREN) {
+					throw new ParseException("Expected right paren", next.getOffset());
+				}
+				return value;
+			}
+			case SUB:
+				return -this.parseExpr(Precedence.PREFIX);
 			default:
-				throw new IllegalStateException("Invalid token!");
+				throw new ParseException("Unexpected token " + token.getType(), token.getOffset());
 		}
 	}
 
@@ -52,33 +65,45 @@ public class Parser {
 		return token.getPrecedence();
 	}
 
-	protected double evalExpressionInfix(Token token, double left) {
+	protected double parseExprInfix(Token token, double left) throws ParseException {
 		switch (token.getType()) {
-			case PLUS:
-			case MINUS:
-			case MULTIPLY:
-			case DIVIDE: {
+			case ADD:
+			case SUB:
+			case MULT:
+			case DIV:
+			case MOD:
+			case EXP: {
 				var prec = token.getPrecedence();
 				if (token.isRightAssociative()) {
 					prec -= 1;
 				}
-				var right = this.evalExpression(prec);
+				var right = this.parseExpr(prec);
 				switch (token.getType()) {
-					case PLUS:
+					case ADD:
 						return left + right;
-					case MINUS:
+					case SUB:
 						return left - right;
-					case MULTIPLY:
+					case MULT:
 						return left * right;
-					case DIVIDE:
+					case DIV:
+						if (right == 0.0) {
+							throw new ParseException("Division by zero", token.getOffset());
+						}
 						return left / right;
+					case MOD:
+						if (right == 0.0) {
+							throw new ParseException("Modulo by zero", token.getOffset());
+						}
+						return left % right;
+					case EXP:
+						return Math.pow(left, right);
 					// unreachable
 					default:
 						return 0.0;
 				}
 			}
 			default:
-				return 0.0;
+				throw new ParseException("Unexpected token " + token.getType(), token.getOffset());
 		}
 	}
 }

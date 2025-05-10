@@ -35,22 +35,28 @@ public class Lexer implements Iterator<Token> {
 			Token.Type type = null;
 			switch (c) {
 				case '+':
-					type = Token.Type.PLUS;
+					type = Token.Type.ADD;
 					break;
 				case '-':
-					type = Token.Type.MINUS;
+					type = Token.Type.SUB;
 					break;
 				case '*':
-					type = Token.Type.MULTIPLY;
+					type = Token.Type.MULT;
 					break;
 				case '/':
-					type = Token.Type.DIVIDE;
+					type = Token.Type.DIV;
 					break;
 				case '(':
 					type = Token.Type.LPAREN;
 					break;
 				case ')':
 					type = Token.Type.RPAREN;
+					break;
+				case '=':
+					type = Token.Type.EQUAL;
+					break;
+				case '^':
+					type = Token.Type.EXP;
 					break;
 			}
 
@@ -64,7 +70,7 @@ public class Lexer implements Iterator<Token> {
 				}
 				while (index < input.length()) {
 					c = input.charAt(index);
-					if (Character.isWhitespace(c)) {
+					if (!Lexer.isAlphaNum(c)) {
 						break;
 					}
 					++index;
@@ -81,5 +87,9 @@ public class Lexer implements Iterator<Token> {
 			peeked = this.next();
 		}
 		return peeked;
+	}
+
+	private static boolean isAlphaNum(char c) {
+		return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c == '_') || (c == '.');
 	}
 }

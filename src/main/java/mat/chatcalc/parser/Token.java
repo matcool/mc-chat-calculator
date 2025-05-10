@@ -2,7 +2,20 @@ package mat.chatcalc.parser;
 
 public class Token {
 	public enum Type {
-		EOF, NUMBER, NAME, PLUS, MINUS, MULTIPLY, DIVIDE, LPAREN, RPAREN,
+		// @formatter:off
+		EOF,
+		NUMBER,
+		NAME,
+		ADD,
+		SUB,
+		MULT,
+		DIV,
+		MOD,
+		EXP,
+		LPAREN,
+		RPAREN,
+		EQUAL,
+		// @formatter:on
 	}
 
 	private final Type type;
@@ -36,18 +49,29 @@ public class Token {
 		switch (this.getType()) {
 			case LPAREN:
 				return Precedence.POSTFIX;
-			case PLUS:
-			case MINUS:
+			case ADD:
+			case SUB:
 				return Precedence.SUM;
-			case MULTIPLY:
-			case DIVIDE:
+			case MULT:
+			case DIV:
+			case MOD:
 				return Precedence.PRODUCT;
+			case EXP:
+				return Precedence.EXPONENT;
+			case EQUAL:
+				return Precedence.ASSIGNMENT;
 			default:
 				return 0;
 		}
 	}
 
 	public boolean isRightAssociative() {
-		return false;
+		switch (this.getType()) {
+			case EQUAL:
+			case EXP:
+				return true;
+			default:
+				return false;
+		}
 	}
 }

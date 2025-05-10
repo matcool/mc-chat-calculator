@@ -3,6 +3,7 @@ package mat.chatcalc;
 import java.util.HashMap;
 import java.util.Map;
 import mat.chatcalc.parser.Lexer;
+import mat.chatcalc.parser.ParseException;
 import mat.chatcalc.parser.Parser;
 import mat.chatcalc.parser.Token;
 import mat.chatcalc.parser.VariableProvider;
@@ -29,13 +30,17 @@ public class Calculator implements VariableProvider {
 	}
 
 	public static void main(String[] args) {
-		String input = "2.5 * 3 + 1";
-		Lexer lexer = new Lexer(input);
-		Token token;
-		do {
-			token = lexer.next();
-			System.out.println(token);
-		} while (token.getType() != Token.Type.EOF);
-		System.out.println(Parser.parse(input, new Calculator()));
+		try {
+			String input = "2 ^ 3 ^ 2";
+			Lexer lexer = new Lexer(input);
+			Token token;
+			do {
+				token = lexer.next();
+				System.out.println(token);
+			} while (token.getType() != Token.Type.EOF);
+			System.out.println(Parser.parse(input, new Calculator()));
+		} catch (ParseException e) {
+			System.err.println("Error: " + e);
+		}
 	}
 }
