@@ -19,7 +19,7 @@ public class Calculator implements VariableProvider {
 	}
 
 	public double execute(String input) throws ParseException {
-		if (input == "clear()") {
+		if (input.equals("clear()")) {
 			// hacky i know
 			this.reset();
 			return 0.0;
