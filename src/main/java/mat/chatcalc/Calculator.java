@@ -2,10 +2,8 @@ package mat.chatcalc;
 
 import java.util.HashMap;
 import java.util.Map;
-import mat.chatcalc.parser.Lexer;
 import mat.chatcalc.parser.ParseException;
 import mat.chatcalc.parser.Parser;
-import mat.chatcalc.parser.Token;
 import mat.chatcalc.parser.VariableProvider;
 
 public class Calculator implements VariableProvider {
@@ -20,8 +18,16 @@ public class Calculator implements VariableProvider {
 		variables.put("_", 0.0);
 	}
 
-	public void execute(String input) {
-
+	public double execute(String input) throws ParseException {
+		if (input == "clear()") {
+			// hacky i know
+			this.reset();
+			return 0.0;
+		} else {
+			double value = Parser.parse(input, this);
+			this.assignVariable("_", value);
+			return value;
+		}
 	}
 
 	@Override
@@ -36,17 +42,12 @@ public class Calculator implements VariableProvider {
 
 	public static void main(String[] args) {
 		try {
-			String input = "2^1^3";
-			Lexer lexer = new Lexer(input);
-			Token token;
-			do {
-				token = lexer.next();
-				System.out.println(token);
-			} while (token.getType() != Token.Type.EOF);
 			Calculator calc = new Calculator();
-			System.out.println(Parser.parse(input, calc));
-			System.out.println(Parser.parse("a = 2", calc));
-			System.out.println(Parser.parse("a * 2", calc));
+			System.out.println(calc.execute("a = 2"));
+			System.out.println(calc.execute("a * 2"));
+			System.out.println(calc.execute("_ + 1"));
+			System.out.println(calc.execute("clear()"));
+			System.out.println(calc.execute("a + 2"));
 		} catch (ParseException e) {
 			System.err.println("Error: " + e);
 		}
