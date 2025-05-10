@@ -22,7 +22,6 @@ public class Parser {
 
 	protected double parseExpr() throws ParseException {
 		return this.parseExpr(0);
-
 	}
 
 	protected double parseExpr(int precedence) throws ParseException {
@@ -39,11 +38,29 @@ public class Parser {
 			case NUMBER:
 				return Double.parseDouble(token.getValue());
 			case NAME: {
-				var value = variables.valueForVariable(token.getValue());
-				if (value == null) {
-					throw new ParseException("Unknown variable " + token.getValue(), token.getOffset());
+				if (lexer.peek().getType() == Token.Type.LPAREN) {
+					// function call!
+					lexer.next(); // LPAREN
+					var func = token.getValue();
+					double value = this.parseExpr();
+					var next = lexer.next();
+					if (next.getType() != Token.Type.RPAREN) {
+						throw new ParseException("Expected right paren", next.getOffset());
+					}
+					return this.handleFuncCall(func, value, token.getOffset());
+				} else if (lexer.peek().getType() == Token.Type.EQUAL) {
+					// assignment!
+					lexer.next(); // EQUAL
+					double value = this.parseExpr();
+					variables.assignVariable(token.getValue(), value);
+					return value;
+				} else {
+					var value = variables.valueForVariable(token.getValue());
+					if (value == null) {
+						throw new ParseException("Unknown variable " + token.getValue(), token.getOffset());
+					}
+					return value;
 				}
-				return value;
 			}
 			case LPAREN: {
 				double value = this.parseExpr();
@@ -104,6 +121,29 @@ public class Parser {
 			}
 			default:
 				throw new ParseException("Unexpected token " + token.getType(), token.getOffset());
+		}
+	}
+
+	protected double handleFuncCall(String func, double value, int offset) throws ParseException {
+		switch (func) {
+			case "sqrt":
+				return Math.sqrt(value);
+			case "floor":
+				return Math.floor(value);
+			case "ceil":
+				return Math.ceil(value);
+			case "round":
+				return Math.round(value);
+			case "abs":
+				return Math.abs(value);
+			case "sin":
+				return Math.sin(value);
+			case "cos":
+				return Math.cos(value);
+			case "tan":
+				return Math.tan(value);
+			default:
+				throw new ParseException("Unknown function " + func, offset);
 		}
 	}
 }

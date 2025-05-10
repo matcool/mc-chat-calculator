@@ -29,16 +29,24 @@ public class Calculator implements VariableProvider {
 		return variables.get(variable);
 	}
 
+	@Override
+	public void assignVariable(String variable, double value) {
+		variables.put(variable, value);
+	}
+
 	public static void main(String[] args) {
 		try {
-			String input = "2 ^ 3 ^ 2";
+			String input = "2^1^3";
 			Lexer lexer = new Lexer(input);
 			Token token;
 			do {
 				token = lexer.next();
 				System.out.println(token);
 			} while (token.getType() != Token.Type.EOF);
-			System.out.println(Parser.parse(input, new Calculator()));
+			Calculator calc = new Calculator();
+			System.out.println(Parser.parse(input, calc));
+			System.out.println(Parser.parse("a = 2", calc));
+			System.out.println(Parser.parse("a * 2", calc));
 		} catch (ParseException e) {
 			System.err.println("Error: " + e);
 		}

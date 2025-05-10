@@ -7,5 +7,4 @@ public class Precedence {
 	public static final int EXPONENT = 4;
 	public static final int PREFIX = 5;
 	public static final int POSTFIX = 6;
-	public static final int CALL = 7;
 }
