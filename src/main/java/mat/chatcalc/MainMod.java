@@ -23,7 +23,7 @@ public class MainMod {
 
 	@SubscribeEvent
 	public void onClientChat(ClientChatEvent event) {
-		if (event.getMessage().startsWith("=")) {
+		if (event.getMessage().startsWith("=") && Config.enableMod) {
 			var player = Minecraft.getInstance().player;
 			if (player == null) {
 				return;
